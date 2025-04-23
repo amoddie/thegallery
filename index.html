@@ -1,3 +1,6 @@
+---
+layout: null
+---
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,41 +57,26 @@
   </style>
 </head>
 <body>
-  <div class="gallery"></div>
+  <div class="gallery">
+    {% assign imgs = site.static_files | where_exp: "f", "f.path contains '/images/'" %}
+    {% for img in imgs %}
+      {% if img.path contains '.jpg' or img.path contains '.jpeg' or img.path contains '.png' or img.path contains '.gif' %}
+        <img src="{{ img.path }}" data-full="{{ img.path }}" alt="">
+      {% endif %}
+    {% endfor %}
+  </div>
 
   <div id="lightbox-overlay">
-    <img src="" alt="">
+    <img src="" alt="Enlarged photo">
   </div>
 
   <script>
+    // Lightbox functionality
     document.addEventListener('DOMContentLoaded', () => {
       const gallery = document.querySelector('.gallery');
       const lightbox = document.getElementById('lightbox-overlay');
       const lightboxImg = lightbox.querySelector('img');
 
-      // Derive GitHub username and repo from the hostname
-      const host = window.location.host; // e.g. username.github.io
-      const user = host.split('.')[0];
-      const repo = `${user}.github.io`;
-      const apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/images`;
-
-      // Fetch the list of images in the 'images' folder
-      fetch(apiUrl)
-        .then(res => res.json())
-        .then(files => {
-          files.forEach(file => {
-            if (file.type === 'file' && /\.(jpe?g|png|gif)$/i.test(file.name)) {
-              const img = document.createElement('img');
-              img.src = `images/${file.name}`;
-              img.dataset.full = `images/${file.name}`;
-              img.alt = '';
-              gallery.appendChild(img);
-            }
-          });
-        })
-        .catch(err => console.error('Error fetching image list:', err));
-
-      // Open lightbox on thumbnail click
       gallery.addEventListener('click', e => {
         if (e.target.tagName === 'IMG') {
           lightboxImg.src = e.target.dataset.full;
@@ -96,7 +84,6 @@
         }
       });
 
-      // Close lightbox when clicking outside the image
       lightbox.addEventListener('click', () => {
         lightbox.style.display = 'none';
         lightboxImg.src = '';
