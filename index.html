@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Photo Gallery</title>
   <style>
     /* Basic reset and styling */
@@ -20,7 +20,7 @@
     .gallery {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      grid-auto-rows: auto; /* allow rows to size to content */
+      grid-auto-rows: auto;
       gap: 5px;
       width: 100%;
       max-width: 1000px;
@@ -28,8 +28,8 @@
     }
     .gallery img {
       width: 100%;
-      height: auto;           /* ensure height follows aspect ratio */
-      object-fit: contain;    /* scale to fit while maintaining ratio */
+      height: auto;
+      object-fit: contain;
       cursor: pointer;
       display: block;
     }
@@ -54,39 +54,53 @@
   </style>
 </head>
 <body>
-  <div class="gallery">
-    <!-- Replace these with your own photo filenames -->
-    <img src="images/photo1.jpg" data-full="images/photo1.jpg" alt="">
-    <img src="images/photo2.jpg" data-full="images/photo2.jpg" alt="">
-    <img src="images/photo3.jpg" data-full="images/photo3.jpg" alt="">
-    <img src="images/photo4.jpg" data-full="images/photo4.jpg" alt="">
-    <img src="images/photo5.jpg" data-full="images/photo5.jpg" alt="">
-    <img src="images/photo6.jpg" data-full="images/photo6.jpg" alt="">
-    <!-- Add more <img> tags as needed -->
-  </div>
+  <div class="gallery"></div>
 
   <div id="lightbox-overlay">
-    <img src="" alt="Enlarged photo">
+    <img src="" alt="">
   </div>
 
   <script>
-    // Open lightbox when a thumbnail is clicked
-    const gallery = document.querySelector('.gallery');
-    const lightbox = document.getElementById('lightbox-overlay');
-    const lightboxImg = lightbox.querySelector('img');
+    document.addEventListener('DOMContentLoaded', () => {
+      const gallery = document.querySelector('.gallery');
+      const lightbox = document.getElementById('lightbox-overlay');
+      const lightboxImg = lightbox.querySelector('img');
 
-    gallery.addEventListener('click', e => {
-      if (e.target.tagName === 'IMG') {
-        const src = e.target.dataset.full;
-        lightboxImg.src = src;
-        lightbox.style.display = 'flex';
-      }
-    });
+      // Derive GitHub username and repo from the hostname
+      const host = window.location.host; // e.g. username.github.io
+      const user = host.split('.')[0];
+      const repo = `${user}.github.io`;
+      const apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/images`;
 
-    // Close lightbox when clicking outside the image
-    lightbox.addEventListener('click', () => {
-      lightbox.style.display = 'none';
-      lightboxImg.src = '';
+      // Fetch the list of images in the 'images' folder
+      fetch(apiUrl)
+        .then(res => res.json())
+        .then(files => {
+          files.forEach(file => {
+            if (file.type === 'file' && /\.(jpe?g|png|gif)$/i.test(file.name)) {
+              const img = document.createElement('img');
+              img.src = `images/${file.name}`;
+              img.dataset.full = `images/${file.name}`;
+              img.alt = '';
+              gallery.appendChild(img);
+            }
+          });
+        })
+        .catch(err => console.error('Error fetching image list:', err));
+
+      // Open lightbox on thumbnail click
+      gallery.addEventListener('click', e => {
+        if (e.target.tagName === 'IMG') {
+          lightboxImg.src = e.target.dataset.full;
+          lightbox.style.display = 'flex';
+        }
+      });
+
+      // Close lightbox when clicking outside the image
+      lightbox.addEventListener('click', () => {
+        lightbox.style.display = 'none';
+        lightboxImg.src = '';
+      });
     });
   </script>
 </body>
