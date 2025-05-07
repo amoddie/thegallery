@@ -1,0 +1,36 @@
+/* assets/css/gallery.css */
+/* -------------------------
+   CSS Image Grid Gallery
+   Source: ehtmlu — Medium
+---------------------------*/
+
+body {
+  margin: 0;
+  padding: 1rem;
+  font-family: sans-serif;
+}
+
+/* container for the grid */
+.gallery {
+  --gap: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  margin: calc(-1 * var(--gap)) 0 0 calc(-1 * var(--gap));
+}
+.gallery > * {
+  margin: var(--gap) 0 0 var(--gap);
+}
+
+/* each image wrapper */
+.gallery figure {
+  position: relative;
+  margin: 0;
+  /* aspect ratio via CSS custom props */
+  --ratio: calc(var(--width) / var(--height));
+  width: calc(25rem * var(--ratio)); /* change 25rem to adjust row height */
+}
+.gallery img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
